@@ -12,13 +12,21 @@ public class MainActivity extends AppCompatActivity {
 
     public class ApiTask extends GetWeatherForecastTask {
         @Override
-        protected void onPostExecute(String data) {
+        protected void onPostExecute(WeatherForecast data) {
             super.onPostExecute(data);
             if (data != null) {
-                result.setText(data);
+                result.setText(data.location.area + " "
+                        + data.location.prefecture + " "
+                        + data.location.city);
+
+                for (WeatherForecast.Forecast forecast : data.forecastList) {
+                    // windowsの場合「\」, mac/linuxの場合「/」
+                    result.append("\n");
+                    result.append(forecast.dateLabel + " " + forecast.telop);
+                }
             } else if (exception != null) {
-                Toast.maketext(getApplicationContext(), exception.getMessage(),
-                        Toast.LENGTH_SHORT.show();
+                Toast.makeText(getApplicationContext(), exception.getMessage(),
+                        Toast.LENGTH_SHORT).show();
             }
         }
     }
