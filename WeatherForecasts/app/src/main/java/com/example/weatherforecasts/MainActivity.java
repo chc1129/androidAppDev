@@ -5,6 +5,7 @@ import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,11 +17,22 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView location;
     private LinearLayout forecasterLayout;
+    private ProgressBar progress;
 
     public class ApiTask extends GetWeatherForecastTask {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progress.setVisibility(View.VISIBLE);
+        }
+
         @Override
         protected void onPostExecute(WeatherForecast data) {
             super.onPostExecute(data);
+
+            progress.setVisibility(View.GONE);
+
             if (data != null) {
                 location.setText(data.location.area + " "
                         + data.location.prefecture + " "
@@ -60,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
         location = (TextView) findViewById(R.id.tv_location);
         forecasterLayout = (LinearLayout) findViewById(R.id.ll_forecasts);
+        progress = (ProgressBar) findViewById(R.id.progress);
 
         new ApiTask().execute("400040");
     }
