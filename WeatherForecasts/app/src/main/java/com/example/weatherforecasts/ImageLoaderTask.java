@@ -12,7 +12,7 @@ import java.net.URL;
 
 public class ImageLoaderTask
         extends AsyncTask<ImageLoaderTask.Request,
-        Void, ImageLoderTask.Result> {
+        Void, ImageLoaderTask.Result> {
 
     public static class Request {
         public final ImageView imageView;

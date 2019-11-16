@@ -94,6 +94,28 @@ public class WeatherForecast {
             }
         }
 
+        @Override
+        public String toString() {
+            StringBuffer sb = new StringBuffer() ;
+
+            // 最低気温 / 最高気温
+            if (min.celsius != null) {
+                sb.append(min.celsius);
+            } else {
+                sb.append(" - ");
+            }
+            sb.append("℃ / ");
+
+            if (max.celsius != null) {
+                sb.append(max.celsius);
+            } else {
+                sb.append(" - ");
+            }
+            sb.append("℃");
+
+            return sb.toString();
+        }
+
         public static class Value {
             public final String celsius;
             public final String fahrenheit;

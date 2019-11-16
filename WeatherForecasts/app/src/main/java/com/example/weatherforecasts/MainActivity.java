@@ -1,6 +1,10 @@
 package com.example.weatherforecasts;
 
 import android.os.Handler;
+import android.speech.tts.TextToSpeech;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,19 +14,37 @@ import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
+    private TextView location;
+    private LinearLayout forecasterLayout;
+
     public class ApiTask extends GetWeatherForecastTask {
         @Override
         protected void onPostExecute(WeatherForecast data) {
             super.onPostExecute(data);
             if (data != null) {
-                result.setText(data.location.area + " "
+                location.setText(data.location.area + " "
                         + data.location.prefecture + " "
                         + data.location.city);
 
                 for (WeatherForecast.Forecast forecast : data.forecastList) {
-                    // windowsの場合「\」, mac/linuxの場合「/」
-                    result.append("\n");
-                    result.append(forecast.dateLabel + " " + forecast.telop);
+                    View row = View.inflate(MainActivity.this, R.layout.forecast_row, null);
+                    TextView date = (TextView) row.findViewById(R.id.tv_date);
+                    date .setText(forecast.dateLabel);
+
+                    TextView telop = (TextView) row.findViewById(R.id.tv_telop);
+                    telop.setText(forecast.telop);
+
+                    TextView temperature =
+                            (TextView) row.findViewById(R.id.tv_temperature);
+                    temperature.setText(forecast.temperature.toString());
+
+                    ImageView image = (ImageView) row.findViewById(R.id.iv_weather);
+
+                    ImageLoaderTask task = new ImageLoaderTask();
+                    task.execute(new ImageLoaderTask.Request(
+                            image, forecast.image.url));
+
+                    forecasterLayout.addView(row);
                 }
             } else if (exception != null) {
                 Toast.makeText(getApplicationContext(), exception.getMessage(),
@@ -31,14 +53,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private TextView result;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        result = (TextView) findViewById(R.id.tv_result);
+        location = (TextView) findViewById(R.id.tv_location);
+        forecasterLayout = (LinearLayout) findViewById(R.id.ll_forecasts);
 
         new ApiTask().execute("400040");
     }
