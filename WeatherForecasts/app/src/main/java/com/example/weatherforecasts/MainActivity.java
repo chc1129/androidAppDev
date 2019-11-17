@@ -1,79 +1,59 @@
 package com.example.weatherforecasts;
 
-import android.os.Handler;
-import android.speech.tts.TextToSpeech;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+import android.view.ViewParent;
 
-import java.io.IOException;
+import androidx.viewpager.widget.ViewPager;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.Fragment;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView location;
-    private LinearLayout forecasterLayout;
-    private ProgressBar progress;
+    private static final String[] CITY_LIST = {
+            "270000",
+            "130010",
+            "040010",
+    };
 
-    public class ApiTask extends GetWeatherForecastTask {
+    private List<String> pointList;
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            progress.setVisibility(View.VISIBLE);
+    private  class Adapter extends FragmentPagerAdapter {
+
+        public Adapter(FragmentManager fm) {
+            super(fm);
         }
 
         @Override
-        protected void onPostExecute(WeatherForecast data) {
-            super.onPostExecute(data);
+        public Fragment getItem(int position) {
+            return ForecastFragment.newInstance((pointList.get(position)));
+        }
 
-            progress.setVisibility(View.GONE);
-
-            if (data != null) {
-                location.setText(data.location.area + " "
-                        + data.location.prefecture + " "
-                        + data.location.city);
-
-                for (WeatherForecast.Forecast forecast : data.forecastList) {
-                    View row = View.inflate(MainActivity.this, R.layout.forecast_row, null);
-                    TextView date = (TextView) row.findViewById(R.id.tv_date);
-                    date .setText(forecast.dateLabel);
-
-                    TextView telop = (TextView) row.findViewById(R.id.tv_telop);
-                    telop.setText(forecast.telop);
-
-                    TextView temperature =
-                            (TextView) row.findViewById(R.id.tv_temperature);
-                    temperature.setText(forecast.temperature.toString());
-
-                    ImageView image = (ImageView) row.findViewById(R.id.iv_weather);
-
-                    ImageLoaderTask task = new ImageLoaderTask();
-                    task.execute(new ImageLoaderTask.Request(
-                            image, forecast.image.url));
-
-                    forecasterLayout.addView(row);
-                }
-            } else if (exception != null) {
-                Toast.makeText(getApplicationContext(), exception.getMessage(),
-                        Toast.LENGTH_SHORT).show();
-            }
+        @Override
+        public  int getCount() {
+            return pointList.size();
         }
     }
+
+    private Adapter adapter;
+    private ViewPager viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (pointList == null) {
+            pointList = Arrays.asList(CITY_LIST);
+        }
+
         setContentView(R.layout.activity_main);
-
-        location = (TextView) findViewById(R.id.tv_location);
-        forecasterLayout = (LinearLayout) findViewById(R.id.ll_forecasts);
-        progress = (ProgressBar) findViewById(R.id.progress);
-
-        new ApiTask().execute("400040");
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        adapter = new Adapter(getSupportFragmentManager());
+        viewPager.setAdapter(adapter);
     }
 }
