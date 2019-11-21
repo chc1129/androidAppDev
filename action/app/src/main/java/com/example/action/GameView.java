@@ -1,7 +1,10 @@
 package com.example.action;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.view.View;
 
 public class GameView extends View {
@@ -12,6 +15,7 @@ public class GameView extends View {
     private Ground ground;
 
     private Bitmap droidBitmap;
+
     public GameView(Context context) {
         super(context);
 
@@ -19,9 +23,18 @@ public class GameView extends View {
     }
 
     @Override
-    protected woid onDraw(Canvas canvas) {
+    protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        int width = canvas.getWidth();
+        int height = canvas.getHeight();
+
+        if (ground == null) {
+            int top = height - GROUND_HEIGHT;
+            ground = new Ground(0, top, width, height);
+        }
+
         canvas.drawBitmap(droidBitmap, 0, 0, PAINT);
+        ground.draw(canvas);
     }
 }
