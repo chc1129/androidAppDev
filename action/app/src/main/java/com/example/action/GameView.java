@@ -17,7 +17,7 @@ public class GameView extends View {
     private final Droid.Callback droidCallback = new Droid.Callback() {
         @Override
         public int getDistanceFromGround(Droid droid) {
-            return ground.rect.top - ground.rect.bottom;
+            return ground.rect.top - droid.rect.bottom;
         }
     };
 
