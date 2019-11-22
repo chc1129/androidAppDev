@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.telecom.Call;
 
 public class Droid {
 
@@ -13,11 +14,17 @@ public class Droid {
 
     final Rect rect;
 
-    public Droid(Bitmap bitmap, int left, int top) {
+    public interface Callback {
+        int getDistanceFromGround(Droid droid);
+    }
+
+    private final Callback callback;
+
+    public Droid(Bitmap bitmap, int left, int top, Callback callback) {
         int right = left + bitmap.getWidth();
         int bottom = top + bitmap.getHeight();
         this.rect = new Rect(left, top, right, bottom);
-        this.bitmap = bitmap;
+        this.callback = callback;
     }
 
     public void draw(Canvas canvas) {
@@ -25,6 +32,14 @@ public class Droid {
     }
 
     public void move() {
+        int distanceFrromGround = callback.getDistanceFromGround(this);
+        if (distanceFrromGround == 0) {
+            return;
+        } else if (distanceFrromGround < 0) {
+            rect.offset(0, distanceFrromGround);
+            return;
+        }
+
         rect.offset(0, 5); // 下へ
     }
 }

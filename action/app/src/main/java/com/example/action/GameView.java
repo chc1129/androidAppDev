@@ -14,11 +14,18 @@ public class GameView extends View {
     private Bitmap droidBitmap;
     private Droid droid;
 
+    private final Droid.Callback droidCallback = new Droid.Callback() {
+        @Override
+        public int getDistanceFromGround(Droid droid) {
+            return ground.rect.top - ground.rect.bottom;
+        }
+    };
+
     public GameView(Context context) {
         super(context);
 
         droidBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.droid);
-        droid = new Droid(droidBitmap, 0, 0);
+        droid = new Droid(droidBitmap, 0, 0, droidCallback);
     }
 
     @Override
