@@ -48,6 +48,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 boolean horizontal = !(droid.hitRect.left >= ground.rect.right
                         || droid.hitRect.right <= ground.rect.left);
                 if (horizontal) {
+                    if (!ground.isSolid()) {
+                        return Integer.MAX_VALUE;
+                    }
+
                     int distanceFromGround = ground.rect.top - droid.hitRect.bottom;
                     if (distanceFromGround < 0) {
                         gameOver();
@@ -162,7 +166,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     public GameView(Context context) {
         super(context);
 
-        droidBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.droid);
+        droidBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.droid_twins);
         droid = new Droid(droidBitmap, 0, 0, droidCallback);
 
         getHolder().addCallback(this);
@@ -188,7 +192,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
                 int top = height - groundHeight;
                 int right = left + GROUND_WIDTH;
-                lastGround = new Ground(left, top, right, height);
+
+                if (i % 2 == 0) {
+                    lastGround = new Ground(left, top, right, height);
+                } else {
+                    lastGround = new Blank(left, height, right, height);
+                }
                 groundList.add(lastGround);
             }
         }

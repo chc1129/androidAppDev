@@ -33,4 +33,8 @@ public class Ground {
     public boolean isAvailable() {
         return rect.right > 0;
     }
+
+    public boolean isSolid() {
+        return true;
+    }
 }
