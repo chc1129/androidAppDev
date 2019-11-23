@@ -41,6 +41,10 @@ public class Droid {
         velocity = (power * WEIGHT);
     }
 
+    public void stop() {
+        velocity = 0;
+    }
+
     public void move() {
 
         int distanceFromGround = callback.getDistanceFromGround(this);
