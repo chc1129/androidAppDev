@@ -9,6 +9,9 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
@@ -16,7 +19,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private static final int GROUND_MOVE_TO_LEFT = 10;
     private static final int GROUND_HEIGHT = 50;
 
-    private Ground ground;
+    private static final int ADD_GROUND_COUNT = 5;
+
+    private static final int GROUND_WIDTH = 340;
+    private static final int GROUND_BLOCK_HEIGHT = 100;
+
+    private Ground lastGround;
+
+    private final List<Ground> groundList = new ArrayList<>();
+    private final Random rand = new Random(System.currentTimeMillis());
 
     private Bitmap droidBitmap;
     private Droid droid;
@@ -24,14 +35,22 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private final Droid.Callback droidCallback = new Droid.Callback() {
         @Override
         public int getDistanceFromGround(Droid droid) {
-            boolean horizontal = !(droid.rect.left >= ground.rect.right
-                    || droid.rect.right <= ground.rect.left);
+            int width = getWidth();
+            int height = getHeight();
 
-            if (!horizontal) {
-                return Integer.MAX_VALUE;
+            for (Ground ground : groundList) {
+
+                if (!ground.isShown(width, height)) {
+                    continue;
+                }
+
+                boolean horizontal = !(droid.rect.left >= ground.rect.right || droid.rect.right <= ground.rect.left);
+                if (horizontal) {
+                    return ground.rect.top - droid.rect.bottom;
+                }
             }
 
-            return ground.rect.top - droid.rect.bottom;
+            return Integer.MAX_VALUE;
         }
     };
 
@@ -118,15 +137,41 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         int width = canvas.getWidth();
         int height = canvas.getHeight();
 
-        if (ground == null) {
+        if (lastGround == null) {
             int top = height - GROUND_HEIGHT;
-            ground = new Ground(0, top, width, height);
+            lastGround = new Ground(0, top, width, height);
+            groundList.add(lastGround);
+        }
+
+        if (lastGround.isShown(width, height)) {
+            for (int i = 0; i < ADD_GROUND_COUNT; i++) {
+                int left = lastGround.rect.right;
+
+                int groundHeight = rand.nextInt(height / GROUND_BLOCK_HEIGHT) * GROUND_BLOCK_HEIGHT / 2 + GROUND_HEIGHT;
+
+                int top = height - groundHeight;
+                int right = left + GROUND_WIDTH;
+                lastGround = new Ground(left, top, right, height);
+                groundList.add(lastGround);
+            }
+        }
+
+        for (int i = 0; i < groundList.size(); i++) {
+            Ground ground = groundList.get(i);
+
+            if (ground.isAvailable()) {
+                ground.move(GROUND_MOVE_TO_LEFT);
+                if (ground.isShown(width, height)) {
+                    ground.draw(canvas);
+                }
+            } else {
+                groundList.remove(ground);
+                i--;
+            }
         }
 
         droid.move();
-        ground.move(GROUND_MOVE_TO_LEFT);
         droid.draw(canvas);
-        ground.draw(canvas);
     }
 
     private static final long MAX_TOUCH_TIME = 500;     // ミリ秒
