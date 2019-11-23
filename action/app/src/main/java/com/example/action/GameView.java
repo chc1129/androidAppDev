@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.view.MotionEvent;
 import android.view.View;
 
 public class GameView extends View {
@@ -45,5 +46,31 @@ public class GameView extends View {
         ground.draw(canvas);
 
         invalidate();
+    }
+
+    private static final long MAX_TOUCH_TIME = 500;     // ミリ秒
+    private long touchDownStartTime;
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                touchDownStartTime = System.currentTimeMillis();
+                return true;
+            case MotionEvent.ACTION_UP:
+                float time = System.currentTimeMillis() - touchDownStartTime;
+                jumpDroid(time);
+                touchDownStartTime = 0;
+                break;
+        }
+        return super.onTouchEvent(event);
+    }
+
+    private void jumpDroid(float time) {
+        if (droidCallback.getDistanceFromGround(droid) > 0) {
+            return;
+        }
+
+        droid.jump(Math.min(time, MAX_TOUCH_TIME) / MAX_TOUCH_TIME);
     }
 }

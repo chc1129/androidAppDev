@@ -8,6 +8,9 @@ import android.telecom.Call;
 
 public class Droid {
 
+    private static final float GRAVITY = 0.8f;
+    private static final float WEIGHT = GRAVITY * 60;
+
     private final Paint paint = new Paint();
 
     private Bitmap bitmap;
@@ -32,8 +35,22 @@ public class Droid {
         canvas.drawBitmap(bitmap, rect.left, rect.top, paint);
     }
 
+    private float velocity = 0;
+
+    public void jump(float power) {
+        velocity = (power * WEIGHT);
+    }
+
     public void move() {
+
         int distanceFromGround = callback.getDistanceFromGround(this);
+
+        if (velocity < 0 && velocity < -distanceFromGround) {
+            velocity = -distanceFromGround;
+        }
+
+        rect.offset(0, Math.round(-1 * velocity));
+
         if (distanceFromGround == 0) {
             return;
         } else if (distanceFromGround < 0) {
@@ -41,6 +58,6 @@ public class Droid {
             return;
         }
 
-        rect.offset(0, 5); // 下へ
+        velocity -= GRAVITY;
     }
 }
