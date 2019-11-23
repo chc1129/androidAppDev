@@ -4,13 +4,18 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.view.MotionEvent;
-import android.view.View;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 
-public class GameView extends View {
+import java.util.concurrent.atomic.AtomicBoolean;
+
+public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     private static final int GROUND_MOVE_TO_LEFT = 10;
     private static final int GROUND_HEIGHT = 50;
+
     private Ground ground;
 
     private Bitmap droidBitmap;
@@ -30,16 +35,85 @@ public class GameView extends View {
         }
     };
 
+    private static final long DRAW_INTERVAL = 1000 / 80;
+
+    private class DrawThread extends Thread {
+        private final AtomicBoolean isFinished = new AtomicBoolean(false);
+
+        public void finish() {
+            isFinished.set(true);
+        }
+
+        @Override
+        public void run() {
+            SurfaceHolder holder = getHolder();
+
+            while (!isFinished.get()) {
+                if (holder.isCreating()) {
+                    continue;
+                }
+                Canvas canvas = holder.lockCanvas();
+                if (canvas == null) {
+                    continue;
+                }
+                drawGame(canvas);
+
+                holder.unlockCanvasAndPost(canvas);
+
+                synchronized (this) {
+                    try {
+                        wait(DRAW_INTERVAL);
+                    } catch (InterruptedException e) {
+                    }
+                }
+            }
+        }
+    }
+
+    private DrawThread drawThread;
+
+    public void startDrawThread() {
+        stopDrawThread();
+
+        drawThread = new DrawThread();
+        drawThread.start();
+    }
+
+    public boolean stopDrawThread() {
+        if (drawThread == null) {
+            return false;
+        }
+        drawThread.finish();
+        drawThread = null;
+
+        return true;
+    }
+
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        startDrawThread();
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        stopDrawThread();
+    }
+
     public GameView(Context context) {
         super(context);
 
         droidBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.droid);
         droid = new Droid(droidBitmap, 0, 0, droidCallback);
+
+        getHolder().addCallback(this);
     }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
+    private void drawGame(Canvas canvas) {
+        canvas.drawColor(Color.WHITE);
 
         int width = canvas.getWidth();
         int height = canvas.getHeight();
@@ -53,8 +127,6 @@ public class GameView extends View {
         ground.move(GROUND_MOVE_TO_LEFT);
         droid.draw(canvas);
         ground.draw(canvas);
-
-        invalidate();
     }
 
     private static final long MAX_TOUCH_TIME = 500;     // ミリ秒
