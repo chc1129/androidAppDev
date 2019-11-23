@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -16,6 +17,13 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
+
+    private static final float POWER_GAUGE_HEIGHT = 30;
+    private static final Paint PAINT_POWER_GAUGE = new Paint();
+
+    static {
+        PAINT_POWER_GAUGE.setColor(Color.RED);
+    }
 
     private static final int GROUND_MOVE_TO_LEFT = 10;
     private static final int GROUND_HEIGHT = 50;
@@ -218,6 +226,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         droid.move();
         droid.draw(canvas);
+
+        if (touchDownStartTime > 0) {
+            float elapsedTime = System.currentTimeMillis() - touchDownStartTime;
+            canvas.drawRect(0, 0, width * (elapsedTime / MAX_TOUCH_TIME), POWER_GAUGE_HEIGHT,
+                    PAINT_POWER_GAUGE);
+        }
     }
 
     private static final long MAX_TOUCH_TIME = 500;     // ミリ秒
