@@ -8,6 +8,9 @@ import android.telecom.Call;
 
 public class Droid {
 
+    private static final int HIT_MARGIN_LEFT = 30;
+    private static final int HIT_MARGIN_RIGHT = 10;
+
     private static final float GRAVITY = 0.8f;
     private static final float WEIGHT = GRAVITY * 60;
 
@@ -16,6 +19,7 @@ public class Droid {
     private Bitmap bitmap;
 
     final Rect rect;
+    final Rect hitRect;
 
     public interface Callback {
         int getDistanceFromGround(Droid droid);
@@ -28,11 +32,15 @@ public class Droid {
         int right = left + bitmap.getWidth();
         int bottom = top + bitmap.getHeight();
         this.rect = new Rect(left, top, right, bottom);
+        this.hitRect = new Rect(left, top, right, bottom);
+        this.hitRect.left += HIT_MARGIN_LEFT;
+        this.hitRect.right -= HIT_MARGIN_RIGHT;
         this.callback = callback;
     }
 
     public void draw(Canvas canvas) {
         canvas.drawBitmap(bitmap, rect.left, rect.top, paint);
+//        canvas.drawRect(hitRect, paint);
     }
 
     private float velocity = 0;
@@ -54,11 +62,13 @@ public class Droid {
         }
 
         rect.offset(0, Math.round(-1 * velocity));
+        hitRect.offset(0, Math.round(-1 * velocity));
 
         if (distanceFromGround == 0) {
             return;
         } else if (distanceFromGround < 0) {
             rect.offset(0, distanceFromGround);
+            hitRect.offset(0, distanceFromGround);
             return;
         }
 
