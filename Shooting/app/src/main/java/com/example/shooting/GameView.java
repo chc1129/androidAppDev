@@ -7,6 +7,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Handler;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -23,6 +25,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private static final int MISSILE_LAUNCH_WEIGHT = 50;
 
     private static final float SCORE_TEXT_SIZE = 60.0f;
+
+    private static final long VIBRATION_LENGTH_HIT_MISSILE = 100;
+    private static final long VIBRATION_LENGTH_HIT_DROID = 1000;
 
     private Droid droid;
     private final List<BaseObject> missileList = new ArrayList<>();
@@ -112,8 +117,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     private Handler handler = new Handler();
 
+    private final Vibrator vibrator;
+
     public GameView(Context context) {
         super(context);
+
+        vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
 
         paintScore.setColor(Color.BLACK);
         paintScore.setTextSize(SCORE_TEXT_SIZE);
@@ -149,6 +158,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 missile.hit();
                 droid.hit();
 
+                vibrator.vibrate(VIBRATION_LENGTH_HIT_DROID);
+
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -164,6 +175,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 if (bullet.isHit(missile)) {
                     missile.hit();
                     bullet.hit();
+
+                    vibrator.vibrate(VIBRATION_LENGTH_HIT_MISSILE);
 
                     score += 10;
                 }
