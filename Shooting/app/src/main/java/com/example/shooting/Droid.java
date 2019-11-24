@@ -26,7 +26,26 @@ public class Droid extends BaseObject {
     }
 
     @Override
+    public boolean isHit(BaseObject object) {
+        if (object.getType() != Type.Missile) {
+            return false;
+        }
+
+        int x = Math.round(object.xPosition);
+        int y = Math.round(object.yPosition);
+        return rect.contains(x, y);
+    }
+
+    @Override
+    public Type getType() {
+        return Type.Droid;
+    }
+
+    @Override
     public void draw(Canvas canvas) {
+        if (state != STATE_NORMAL) {
+            return;
+        }
         canvas.drawBitmap(bitmap, rect.left, rect.top, paint);
     }
 

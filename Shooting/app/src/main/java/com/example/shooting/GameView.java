@@ -119,6 +119,26 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         drawObjectList(canvas, missileList, width, height);
         drawObjectList(canvas, bulletList, width, height);
 
+        for (int i = 0; i < missileList.size(); i++) {
+            BaseObject missile = missileList.get(i);
+
+            if (droid.isHit(missile)) {
+                missile.hit();
+                droid.hit();
+
+                break;
+            }
+
+            for (int j = 0; j < bulletList.size(); j++) {
+                BaseObject bullet = bulletList.get(j);
+
+                if (bullet.isHit(missile)) {
+                    missile.hit();
+                    bullet.hit();
+                }
+            }
+        }
+
         droid.draw(canvas);
     }
 
