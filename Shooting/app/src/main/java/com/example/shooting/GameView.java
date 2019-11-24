@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -99,6 +100,18 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         stopDrawThread();
     }
 
+    public interface EventCallback {
+        void onGameOver(long score);
+    }
+
+    private EventCallback eventCallback;
+
+    public void setEventCallback(EventCallback eventCallback) {
+        this.eventCallback = eventCallback;
+    }
+
+    private Handler handler = new Handler();
+
     public GameView(Context context) {
         super(context);
 
@@ -136,6 +149,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 missile.hit();
                 droid.hit();
 
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        eventCallback.onGameOver(score);
+                    }
+                });
                 break;
             }
 
