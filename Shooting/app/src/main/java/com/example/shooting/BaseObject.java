@@ -12,6 +12,7 @@ public abstract class BaseObject {
         Droid,
         Bullet,
         Missile,
+        City,
     }
 
     public abstract Type getType();

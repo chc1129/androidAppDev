@@ -30,6 +30,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private static final long VIBRATION_LENGTH_HIT_DROID = 1000;
 
     private Droid droid;
+    private City city;
     private final List<BaseObject> missileList = new ArrayList<>();
     private final List<BaseObject> bulletList = new ArrayList<>();
 
@@ -141,6 +142,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             Bitmap droidBitmap = BitmapFactory.decodeResource(getResources(),
                     R.drawable.droid);
             droid = new Droid(droidBitmap, width, height);
+            city = new City(width, height);
         }
 
         if (rand.nextInt(MISSILE_LAUNCH_WEIGHT) == 0) {
@@ -154,9 +156,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         for (int i = 0; i < missileList.size(); i++) {
             BaseObject missile = missileList.get(i);
 
-            if (droid.isHit(missile)) {
+            if (droid.isHit(missile) || city.isHit(missile)) {
                 missile.hit();
                 droid.hit();
+                city.hit();
 
                 vibrator.vibrate(VIBRATION_LENGTH_HIT_DROID);
 
@@ -183,6 +186,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             }
         }
 
+        city.draw(canvas);
         droid.draw(canvas);
 
         canvas.drawText("Score: " + score, 0, SCORE_TEXT_SIZE, paintScore);
