@@ -29,6 +29,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private static final long VIBRATION_LENGTH_HIT_MISSILE = 100;
     private static final long VIBRATION_LENGTH_HIT_DROID = 1000;
 
+    private static final int SCORE_LEVEL = 100;
+
     private Droid droid;
     private City city;
     private final List<BaseObject> missileList = new ArrayList<>();
@@ -146,8 +148,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         }
 
         if (rand.nextInt(MISSILE_LAUNCH_WEIGHT) == 0) {
-            Missile missile = launchMissile(width, height);
-            missileList.add(missile);
+            long count = score / SCORE_LEVEL + 1;
+            for (int i = 0; i < count; i++) {
+                Missile missile = launchMissile(width, height);
+                missileList.add(missile);
+            }
         }
 
         drawObjectList(canvas, missileList, width, height);
