@@ -86,12 +86,22 @@ public class LabyrinthView extends SurfaceView implements SurfaceHolder.Callback
         return true;
     }
 
+    private static final float ALPHA = 0.8f;
     private float[] sensorValues;
 
     private final SensorEventListener sensorEventListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent event) {
-            sensorValues = event.values;
+            if (sensorValues == null) {
+                sensorValues = new float[3];
+                sensorValues[0] = event.values[0];
+                sensorValues[1] = event.values[1];
+                sensorValues[2] = event.values[2];
+                return;
+            }
+            sensorValues[0] = sensorValues[0] * ALPHA + event.values[0] * (1f - ALPHA);
+            sensorValues[1] = sensorValues[1] * ALPHA + event.values[1] * (1f - ALPHA);
+            sensorValues[2] = sensorValues[2] * ALPHA + event.values[2] * (1f - ALPHA);
         }
 
         @Override
