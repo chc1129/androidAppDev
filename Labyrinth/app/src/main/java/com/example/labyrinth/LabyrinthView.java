@@ -16,6 +16,7 @@ import android.view.SurfaceView;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LabyrinthView extends SurfaceView implements SurfaceHolder.Callback {
+    private static final float ACCEL_WEIGHT = 3f;
 
     private static final int DRAW_INTERVAL = 1000 / 60;
     private static final float TEXT_SIZE = 40f;
@@ -24,6 +25,8 @@ public class LabyrinthView extends SurfaceView implements SurfaceHolder.Callback
     private final Paint textPaint = new Paint();
 
     private final Bitmap ballBitmap;
+    private float ballX;
+    private float ballY;
 
     public LabyrinthView(Context context) {
         super(context);
@@ -102,6 +105,9 @@ public class LabyrinthView extends SurfaceView implements SurfaceHolder.Callback
             sensorValues[0] = sensorValues[0] * ALPHA + event.values[0] * (1f - ALPHA);
             sensorValues[1] = sensorValues[1] * ALPHA + event.values[1] * (1f - ALPHA);
             sensorValues[2] = sensorValues[2] * ALPHA + event.values[2] * (1f - ALPHA);
+
+            ballX += -sensorValues[0] * ACCEL_WEIGHT;
+            ballY += sensorValues[1] * ACCEL_WEIGHT;
         }
 
         @Override
@@ -139,7 +145,7 @@ public class LabyrinthView extends SurfaceView implements SurfaceHolder.Callback
 
     public void drawLabyrinth(Canvas canvas) {
         canvas.drawColor(Color.BLACK);
-        canvas.drawBitmap(ballBitmap, 50, 50, paint);
+        canvas.drawBitmap(ballBitmap, ballX, ballY, paint);
 
         if (sensorValues != null) {
             canvas.drawText("sensor[0] = " + sensorValues[0], 10, 150, textPaint);
