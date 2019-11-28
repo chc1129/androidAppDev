@@ -27,6 +27,7 @@ public class LabyrinthView extends SurfaceView implements SurfaceHolder.Callback
     private final Bitmap ballBitmap;
     private float ballX;
     private float ballY;
+    private Map map;
 
     public LabyrinthView(Context context) {
         super(context);
@@ -145,6 +146,13 @@ public class LabyrinthView extends SurfaceView implements SurfaceHolder.Callback
 
     public void drawLabyrinth(Canvas canvas) {
         canvas.drawColor(Color.BLACK);
+
+        int blockSize = ballBitmap.getHeight();
+        if (map == null) {
+            map = new Map(canvas.getWidth(), canvas.getHeight(), blockSize);
+        }
+
+        map.draw(canvas);
         canvas.drawBitmap(ballBitmap, ballX, ballY, paint);
 
         if (sensorValues != null) {
