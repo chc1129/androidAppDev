@@ -4,16 +4,18 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.RectF;
 
 import java.util.Random;
 import java.util.concurrent.BlockingDeque;
 
-public class Map {
+public class Map implements Ball.OnMoveListener {
     private final int blockSize;
     private int horizontalBlockCount;
     private int verticalBlockCount;
 
     private final Block[][] blockArray;
+    private final Block[][] targetBlock = new Block[3][3];
 
     public Map(int width, int height, int blockSize) {
         this.blockSize = blockSize;
@@ -24,13 +26,20 @@ public class Map {
     }
 
     private Block[][] createMap(int seed) {
-        Random rand = new Random(seed);
+
+        if (horizontalBlockCount % 2 == 0) {
+            horizontalBlockCount--;
+        }
+        if (verticalBlockCount % 2 == 0) {
+            verticalBlockCount--;
+        }
 
         Block[][] array = new Block[verticalBlockCount][horizontalBlockCount];
+        int[][] map = LabyrinthGenerator.getMap(horizontalBlockCount, verticalBlockCount, seed);
 
         for (int y = 0; y < verticalBlockCount; y++) {
             for (int x = 0; x < horizontalBlockCount; x++) {
-                int type = rand.nextInt(2);
+                int type = map[y][x];
                 int left = x * blockSize + 1;
                 int top = y * blockSize + 1;
                 int right = left + blockSize - 2;
@@ -50,6 +59,100 @@ public class Map {
                 blockArray[y][x].draw(canvas);
             }
         }
+    }
+
+    private void setTargetBlock(int verticalBlock, int horizontalBlock) {
+        targetBlock[1][1] = getBlock(verticalBlock, horizontalBlock);
+
+        targetBlock[0][0] = getBlock(verticalBlock - 1, horizontalBlock - 1);
+        targetBlock[0][1] = getBlock(verticalBlock - 1, horizontalBlock);
+        targetBlock[0][2] = getBlock(verticalBlock - 1, horizontalBlock + 1);
+
+        targetBlock[1][0] = getBlock(verticalBlock, horizontalBlock - 1);
+        targetBlock[1][2] = getBlock(verticalBlock, horizontalBlock + 1);
+
+        targetBlock[2][0] = getBlock(verticalBlock + 1, horizontalBlock - 1);
+        targetBlock[2][1] = getBlock(verticalBlock + 1, horizontalBlock);
+        targetBlock[2][2] = getBlock(verticalBlock + 1, horizontalBlock + 1);
+    }
+
+    private Block getBlock(int y, int x) {
+        if (y < 0 || x < 0 || y >= verticalBlockCount || x >= horizontalBlockCount) {
+            return null;
+        }
+        return blockArray[y][x];
+    }
+
+    private int placeVerticalBlock = -1;
+    private int placeHorizontalBlock = -1;
+
+    private boolean canMove(Rect movedRect) {
+        int horizontalBlock = movedRect.centerX() / blockSize;
+        int verticalBlock = movedRect.centerY() / blockSize;
+
+        if (placeHorizontalBlock != horizontalBlock
+                || placeVerticalBlock != verticalBlock) {
+            setTargetBlock(verticalBlock, horizontalBlock);
+            placeHorizontalBlock = horizontalBlock;
+            placeVerticalBlock = verticalBlock;
+        }
+
+        int yLength = targetBlock.length;
+        for (int y = 0; y < yLength; y++) {
+            int xLength = targetBlock[0].length;
+            for (int x = 0; x < xLength; x++) {
+                Block block = targetBlock[y][x];
+                if (block == null) {
+                    continue;
+                }
+                if (block.type == Block.TYPE_WALL && Rect.intersects(block.rect, movedRect)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private final Rect tempBallRect = new Rect();
+
+    @Override
+    public int getCanMoveHorizontalDistance(RectF ballRect, int xOffset) {
+        int result = xOffset;
+
+        ballRect.round(tempBallRect);
+        tempBallRect.offset(xOffset, 0);
+
+        int align = 1;
+        if (xOffset < 0) {
+            align = -1;
+        }
+
+        while (!canMove(tempBallRect)) {
+            tempBallRect.offset(-align, 0);
+            result -= align;
+        }
+
+        return result;
+    }
+
+    @Override
+    public int getCanMoveVerticalDistance(RectF ballRect, int yOffset) {
+        int result = yOffset;
+
+        ballRect.round(tempBallRect);
+        tempBallRect.offset(0, yOffset);
+
+        int align = 1;
+        if (yOffset < 0) {
+            align = -1;
+        }
+
+        while (!canMove(tempBallRect)) {
+            tempBallRect.offset(0, -align);
+            result -= align;
+        }
+
+        return result;
     }
 
     static class Block {

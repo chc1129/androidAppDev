@@ -25,8 +25,7 @@ public class LabyrinthView extends SurfaceView implements SurfaceHolder.Callback
     private final Paint textPaint = new Paint();
 
     private final Bitmap ballBitmap;
-    private float ballX;
-    private float ballY;
+    private Ball ball;
     private Map map;
 
     public LabyrinthView(Context context) {
@@ -107,8 +106,11 @@ public class LabyrinthView extends SurfaceView implements SurfaceHolder.Callback
             sensorValues[1] = sensorValues[1] * ALPHA + event.values[1] * (1f - ALPHA);
             sensorValues[2] = sensorValues[2] * ALPHA + event.values[2] * (1f - ALPHA);
 
-            ballX += -sensorValues[0] * ACCEL_WEIGHT;
-            ballY += sensorValues[1] * ACCEL_WEIGHT;
+            if (ball != null) {
+                float xOffset = -sensorValues[0] * ACCEL_WEIGHT;
+                float yOffset =  sensorValues[1] * ACCEL_WEIGHT;
+                ball.move(xOffset, yOffset);
+            }
         }
 
         @Override
@@ -151,9 +153,12 @@ public class LabyrinthView extends SurfaceView implements SurfaceHolder.Callback
         if (map == null) {
             map = new Map(canvas.getWidth(), canvas.getHeight(), blockSize);
         }
+        if (ball == null) {
+            ball = new Ball(ballBitmap, blockSize, blockSize, map);
+        }
 
         map.draw(canvas);
-        canvas.drawBitmap(ballBitmap, ballX, ballY, paint);
+        ball.draw(canvas);
 
         if (sensorValues != null) {
             canvas.drawText("sensor[0] = " + sensorValues[0], 10, 150, textPaint);
