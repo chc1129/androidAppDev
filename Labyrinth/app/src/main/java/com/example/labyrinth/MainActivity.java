@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements LabyrinthView.EventCallback {
@@ -26,15 +27,29 @@ public class MainActivity extends AppCompatActivity implements LabyrinthView.Eve
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         stageSeed = getIntent().getIntExtra(EXTRA_KEY_STAGE_SEED, 0);
 
         labyrinthView = new LabyrinthView(this);
         labyrinthView.setCallback(this);
         labyrinthView.setStageSeed(stageSeed);
-        labyrinthView.startSensor();
 
         setContentView(labyrinthView);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        labyrinthView.startSensor();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        labyrinthView.stopSensor();
     }
 
     @Override
