@@ -31,6 +31,16 @@ public class LabyrinthView extends SurfaceView implements SurfaceHolder.Callback
     private Ball ball;
     private Map map;
 
+    interface EventCallback {
+        void onGoal();
+    }
+
+    private EventCallback eventCallback;
+
+    public void setCallback(EventCallback eventCallback) {
+        this.eventCallback = eventCallback;
+    }
+
     public LabyrinthView(Context context) {
         super(context);
 
@@ -156,7 +166,7 @@ public class LabyrinthView extends SurfaceView implements SurfaceHolder.Callback
 
         int blockSize = ballBitmap.getHeight();
         if (map == null) {
-            map = new Map(canvas.getWidth(), canvas.getHeight(), blockSize);
+            map = new Map(canvas.getWidth(), canvas.getHeight(), blockSize, eventCallback);
         }
         if (ball == null) {
             ball = new Ball(ballBitmap, map.getStartBlock(), BALL_SCALE, map);
