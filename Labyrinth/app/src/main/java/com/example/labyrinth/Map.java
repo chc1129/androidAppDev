@@ -25,13 +25,14 @@ public class Map implements Ball.OnMoveListener {
 
     private final LabyrinthView.EventCallback eventCallback;
 
-    public Map(int width, int height, int blockSize, LabyrinthView.EventCallback eventCallback) {
+    public Map(int width, int height, int blockSize, int stageSeed,
+               LabyrinthView.EventCallback eventCallback) {
         this.blockSize = blockSize;
         this.horizontalBlockCount = width / blockSize;
         this.verticalBlockCount = height / blockSize;
         this.eventCallback = eventCallback;
 
-        blockArray = createMap(0);
+        blockArray = createMap(stageSeed);
     }
 
     private Block[][] createMap(int seed) {
@@ -122,7 +123,7 @@ public class Map implements Ball.OnMoveListener {
                 if (block.type == Block.TYPE_WALL && Rect.intersects(block.rect, movedRect)) {
                     return false;
                 } else if (block.type == Block.TYPE_GOAL
-                        && block.rect.contains(movedRect.centerX(), movedRect.centerY())){
+                        && block.rect.contains(movedRect.centerX(), movedRect.centerY())) {
                     eventCallback.onGoal();
                     return true;
                 }

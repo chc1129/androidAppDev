@@ -41,6 +41,12 @@ public class LabyrinthView extends SurfaceView implements SurfaceHolder.Callback
         this.eventCallback = eventCallback;
     }
 
+    private int stageSeed;
+
+    public void setStageSeed(int stageSeed) {
+        this.stageSeed = stageSeed;
+    }
+
     public LabyrinthView(Context context) {
         super(context);
 
@@ -123,7 +129,7 @@ public class LabyrinthView extends SurfaceView implements SurfaceHolder.Callback
 
             if (ball != null) {
                 float xOffset = -sensorValues[0] * ACCEL_WEIGHT;
-                float yOffset =  sensorValues[1] * ACCEL_WEIGHT;
+                float yOffset = sensorValues[1] * ACCEL_WEIGHT;
                 ball.move(xOffset, yOffset);
             }
         }
@@ -166,7 +172,8 @@ public class LabyrinthView extends SurfaceView implements SurfaceHolder.Callback
 
         int blockSize = ballBitmap.getHeight();
         if (map == null) {
-            map = new Map(canvas.getWidth(), canvas.getHeight(), blockSize, eventCallback);
+            map = new Map(canvas.getWidth(), canvas.getHeight(), blockSize, stageSeed,
+                    eventCallback);
         }
         if (ball == null) {
             ball = new Ball(ballBitmap, map.getStartBlock(), BALL_SCALE, map);
