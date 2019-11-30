@@ -9,7 +9,21 @@ public class LabyrinthGenerator {
 
     public static final int FLOOR = 0;
     public static final int WALL = 1;
+    public static final int START = 2;
+    public static final int GOAL = 3;
     public static final int INNER_WALL = -1;
+
+    public static class MapResult {
+        final int[][] map;
+        final int startX;
+        final int startY;
+
+        MapResult(int[][] map, int startX, int startY) {
+            this.map = map;
+            this.startX = startX;
+            this.startY = startY;
+        }
+    }
 
     public enum Direction {
         TOP,
@@ -18,7 +32,7 @@ public class LabyrinthGenerator {
         BOTTOM,
     }
 
-    public static int[][] getMap(int horizontalBlockCount, int verticalBlockCount, int seed) {
+    public static MapResult getMap(int horizontalBlockCount, int verticalBlockCount, int seed) {
 
         int[][] result = new int[verticalBlockCount][horizontalBlockCount];
 
@@ -36,8 +50,69 @@ public class LabyrinthGenerator {
             }
         }
 
-        // 迷路を生成
-        return generateLabyrinth(horizontalBlockCount, verticalBlockCount, result, seed);
+        result = generateLabyrinth(horizontalBlockCount, verticalBlockCount, result, seed);
+
+        int startY = -1;
+        int startX = -1;
+
+        for (int y = verticalBlockCount - 1; y >= 0; y--) {
+            for (int x = horizontalBlockCount - 1; x >= 0; x--) {
+                if (result[y][x] == FLOOR) {
+                    startX = x;
+                    startY = y;
+                    result[startY][startX] = START;
+                    break;
+                }
+            }
+            if (startX != -1 && startY != -1) {
+                break;
+            }
+        }
+
+        int[][] exam = new int[verticalBlockCount][horizontalBlockCount];
+
+        calcStep(result, startX, startY, exam, 0);
+
+        int maxScore = 0;
+        int maxScoreXPosition = 0;
+        int maxScoreYPosition = 0;
+
+        for (int y = 0; y < verticalBlockCount; y++) {
+            for (int x = 0; x < horizontalBlockCount; x++) {
+                if (exam[y][x] > maxScore) {
+                    maxScore = exam[y][x];
+                    maxScoreXPosition = x;
+                    maxScoreYPosition = y;
+                }
+            }
+        }
+        result[maxScoreYPosition][maxScoreXPosition] = GOAL;
+
+        return new MapResult(result, startX, startY);
+    }
+
+    private static int[][] calcStep(int[][] map, int x, int y, int[][] result, int score) {
+        score++;
+
+        if (y < 0 || x < 0 || y >= map.length || x >= map[0].length) {
+            return result;
+        }
+
+        if (map[y][x] == WALL) {
+            result[y][x] = -1;
+            return result;
+        }
+
+        if (result[y][x] == 0 || result[y][x] > score) {
+            result[y][x] = score;
+
+            calcStep(map, x, y - 1, result, score);
+            calcStep(map, x, y + 1, result, score);
+            calcStep(map, x - 1, y, result, score);
+            calcStep(map, x + 1, y, result, score);
+        }
+
+        return result;
     }
 
     private static int[][] generateLabyrinth(int horizontalBlockCount, int verticalBlockCount, int[][] map, int seed) {

@@ -20,6 +20,10 @@ public class Ball {
 
     private final OnMoveListener listener;
 
+    public Ball(Bitmap bmp, Map.Block startBlock, float scale, OnMoveListener listener) {
+        this(bmp, startBlock.rect.left, startBlock.rect.top, scale, listener);
+    }
+
     public Ball(Bitmap bmp, int left, int top, float scale, OnMoveListener listener) {
         ballBitmap = bmp;
 

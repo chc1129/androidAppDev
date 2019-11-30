@@ -159,7 +159,7 @@ public class LabyrinthView extends SurfaceView implements SurfaceHolder.Callback
             map = new Map(canvas.getWidth(), canvas.getHeight(), blockSize);
         }
         if (ball == null) {
-            ball = new Ball(ballBitmap, blockSize, blockSize, BALL_SCALE, map);
+            ball = new Ball(ballBitmap, map.getStartBlock(), BALL_SCALE, map);
         }
 
         map.draw(canvas);

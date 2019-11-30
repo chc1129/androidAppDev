@@ -17,6 +17,12 @@ public class Map implements Ball.OnMoveListener {
     private final Block[][] blockArray;
     private final Block[][] targetBlock = new Block[3][3];
 
+    private Block startBlock;
+
+    public Block getStartBlock() {
+        return startBlock;
+    }
+
     public Map(int width, int height, int blockSize) {
         this.blockSize = blockSize;
         this.horizontalBlockCount = width / blockSize;
@@ -35,7 +41,10 @@ public class Map implements Ball.OnMoveListener {
         }
 
         Block[][] array = new Block[verticalBlockCount][horizontalBlockCount];
-        int[][] map = LabyrinthGenerator.getMap(horizontalBlockCount, verticalBlockCount, seed);
+
+        LabyrinthGenerator.MapResult mapResult = LabyrinthGenerator.getMap(horizontalBlockCount, verticalBlockCount, seed);
+
+        int[][] map = mapResult.map;
 
         for (int y = 0; y < verticalBlockCount; y++) {
             for (int x = 0; x < horizontalBlockCount; x++) {
@@ -47,6 +56,8 @@ public class Map implements Ball.OnMoveListener {
                 array[y][x] = new Block(type, left, top, right, bottom);
             }
         }
+        startBlock = array[mapResult.startY][mapResult.startX];
+
         return array;
     }
 
@@ -158,9 +169,13 @@ public class Map implements Ball.OnMoveListener {
     static class Block {
         private static final int TYPE_FLOOR = 0;
         private static final int TYPE_WALL = 1;
+        private static final int TYPE_START = 2;
+        private static final int TYPE_GOAL = 3;
 
         private static final int COLOR_FLOOR = Color.GRAY;
         private static final int COLOR_WALL = Color.BLACK;
+        private static final int COLOR_START = Color.YELLOW;
+        private static final int COLOR_GOAL = Color.GREEN;
 
         private final int type;
         private final Paint paint;
@@ -177,6 +192,12 @@ public class Map implements Ball.OnMoveListener {
                     break;
                 case TYPE_WALL:
                     paint.setColor(COLOR_WALL);
+                    break;
+                case TYPE_START:
+                    paint.setColor(COLOR_START);
+                    break;
+                case TYPE_GOAL:
+                    paint.setColor(COLOR_GOAL);
                     break;
             }
             rect = new Rect(left, top, right, bottom);
