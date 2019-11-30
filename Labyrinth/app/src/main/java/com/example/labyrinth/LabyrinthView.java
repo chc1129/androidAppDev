@@ -33,6 +33,7 @@ public class LabyrinthView extends SurfaceView implements SurfaceHolder.Callback
 
     interface EventCallback {
         void onGoal();
+        void onHole();
     }
 
     private EventCallback eventCallback;

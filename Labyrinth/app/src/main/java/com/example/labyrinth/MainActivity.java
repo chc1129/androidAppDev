@@ -52,4 +52,20 @@ public class MainActivity extends AppCompatActivity implements LabyrinthView.Eve
         startActivity(intent);
         finish();
     }
+
+    @Override
+    public void onHole() {
+        if (isFinished) {
+            return;
+        }
+        isFinished = true;
+
+        Toast.makeText(this, "Hole!!", Toast.LENGTH_SHORT).show();
+
+        labyrinthView.stopSensor();
+
+        Intent intent = newIntent(this, stageSeed);
+        startActivity(intent);
+        finish();
+    }
 }

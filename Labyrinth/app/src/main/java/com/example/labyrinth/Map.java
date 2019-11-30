@@ -126,6 +126,10 @@ public class Map implements Ball.OnMoveListener {
                         && block.rect.contains(movedRect.centerX(), movedRect.centerY())) {
                     eventCallback.onGoal();
                     return true;
+                } else if (block.type == Block.TYPE_HOLE
+                        && block.rect.contains(movedRect.centerX(), movedRect.centerY())) {
+                    eventCallback.onHole();
+                    return false;
                 }
             }
         }
@@ -179,11 +183,13 @@ public class Map implements Ball.OnMoveListener {
         private static final int TYPE_WALL = 1;
         private static final int TYPE_START = 2;
         private static final int TYPE_GOAL = 3;
+        private static final int TYPE_HOLE = 4;
 
         private static final int COLOR_FLOOR = Color.GRAY;
         private static final int COLOR_WALL = Color.BLACK;
         private static final int COLOR_START = Color.YELLOW;
         private static final int COLOR_GOAL = Color.GREEN;
+        private static final int COLOR_HOLE = Color.CYAN;
 
         private final int type;
         private final Paint paint;
@@ -206,6 +212,9 @@ public class Map implements Ball.OnMoveListener {
                     break;
                 case TYPE_GOAL:
                     paint.setColor(COLOR_GOAL);
+                    break;
+                case TYPE_HOLE:
+                    paint.setColor(COLOR_HOLE);
                     break;
             }
             rect = new Rect(left, top, right, bottom);
